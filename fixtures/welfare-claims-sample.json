@@ -1,0 +1,8 @@
+{
+  "disclaimer": "Fictional beneficiary IDs for Merkle demo — no real PII",
+  "claims": [
+    {"claim_id": "SIM-CLM-001", "amount": 200, "region": "NorthDemo"},
+    {"claim_id": "SIM-CLM-002", "amount": 150, "region": "SouthDemo"},
+    {"claim_id": "SIM-CLM-003", "amount": 300, "region": "EastDemo"}
+  ]
+}

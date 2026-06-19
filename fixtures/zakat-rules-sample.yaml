@@ -1,0 +1,11 @@
+# Fictional Zakat / Waqf rule expressions for classroom simulation
+disclaimer: "Static sample — not religious or financial advice"
+rules:
+  zakat:
+    nisab_threshold: 5000
+    rate: 0.025
+    description: "Demo Zakat rate applied when wealth exceeds fictional nisab"
+  waqf:
+    min_endowment: 1000
+    lock_period_years: 5
+    description: "Demo Waqf minimum endowment for sandbox simulation"

@@ -1,0 +1,10 @@
+{
+  "disclaimer": "Fictional city election hash demo — not a real voting system",
+  "jurisdiction": "City of Simville (fictional)",
+  "expected_consensus_hash": "a3f5c8e2b1d94f6078e5a2c3b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7",
+  "nodes": [
+    {"node_id": "node-alpha", "tally_hash": "a3f5c8e2b1d94f6078e5a2c3b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7"},
+    {"node_id": "node-beta", "tally_hash": "a3f5c8e2b1d94f6078e5a2c3b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7"},
+    {"node_id": "node-gamma", "tally_hash": "a3f5c8e2b1d94f6078e5a2c3b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7"}
+  ]
+}

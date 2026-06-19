@@ -1,0 +1,26 @@
+apiVersion: edu.web3/v1
+kind: PluginPackage
+metadata:
+  id: edu.global.sandbox.welfare
+  name: Welfare Anti-Fraud Simulation
+  version: 0.1.0
+  repo: global-social-edu-sandbox
+  compliance_tier: global_sandbox
+
+spec:
+  coreVersion: ">=0.1.0 <0.2.0"
+  taskTypes:
+    - GLOBAL_WELFARE_ANTIFRAUD_SIM
+  namespaces:
+    - ns-domain-global
+  allowedChainIds:
+    - fabric-local
+  frontend:
+    routePrefix: /labs/edu.global.sandbox.welfare
+    entry: plugins/frontend/welfare/plugin.ts
+  rules:
+    entry: plugins.rules.welfare:evaluate
+  k8s:
+    jobTemplate: k8s/overlays/ns-domain-global/welfare-job.yaml
+  docs:
+    - docs/tutorials/welfare-antifraud-intro.md

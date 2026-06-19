@@ -1,0 +1,18 @@
+# Fictional MiCA-style rule snippets for classroom simulation only
+disclaimer: "Static sample — not legal advice or production compliance"
+rules:
+  - id: MICA-DEMO-01
+    category: token_classification
+    pattern: "asset-referenced"
+    action: flag_for_review
+    message: "Asset-referenced token concept — classroom review step"
+  - id: MICA-DEMO-02
+    category: issuer_requirements
+    pattern: "whitepaper-missing"
+    action: reject
+    message: "Missing whitepaper section in demo submission"
+  - id: MICA-DEMO-03
+    category: custody
+    pattern: "unlicensed-custodian"
+    action: flag_for_review
+    message: "Custodian not in fictional approved list"

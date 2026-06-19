@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: regulatory-rule-sandbox
+  labels:
+    edu.web3/plugin-id: edu.global.sandbox.regulatory
+    edu.web3/compliance: fabric-sandbox-only
+spec:
+  template:
+    metadata:
+      labels:
+        edu.web3/plugin-id: edu.global.sandbox.regulatory
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: runner
+          image: hyperledger/fabric-tools:2.5
+          env:
+            - name: CHAIN_ID
+              value: fabric-local
+            - name: EDU_NAMESPACE
+              value: ns-domain-global
+            - name: EDU_TASK_TYPE
+              value: GLOBAL_REGULATORY_RULE_SANDBOX

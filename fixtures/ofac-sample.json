@@ -1,0 +1,8 @@
+{
+  "disclaimer": "Fictional static sample for education only — not OFAC SDN list",
+  "entities": [
+    {"id": "DEMO-001", "name": "Fictional Trade Corp", "country": "DemoLand"},
+    {"id": "DEMO-002", "name": "Sample Holdings Ltd", "country": "MockCity"},
+    {"id": "DEMO-003", "name": "Edu Sandbox Entity", "country": "SimNation"}
+  ]
+}
