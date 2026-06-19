@@ -1,28 +1,10 @@
 # Changelog
 
-All notable changes to `global-social-edu-sandbox` are documented here.
+## v0.3.0 — 2026-06-19
 
-## [0.2.0] — 2026-06-19
+- `coreVersion` 对齐主库 v1.0.0
+- 学习路径与快速部署文档
 
-### Changed
+## v0.2.0
 
-- Plugin pack version **0.2.0**; all 5 manifests declare `coreVersion: ">=0.3.0 <0.4.0"` for **web3-edu-platform-core** v0.3 integration.
-- README and TASK updated for core ≥ v0.3.0 alignment.
-- Tutorial docs: standard `global_sandbox` compliance footers added where missing.
-
-### Plugins (5)
-
-- `edu.global.sandbox.election` — Election hash consensus demo
-- `edu.global.sandbox.religion` — Religion rule sandbox
-- `edu.global.sandbox.welfare` — Welfare anti-fraud simulation
-- `edu.global.sandbox.regulatory` — Regulatory rule sandbox
-- `edu.global.sandbox.logistics` — Logistics audit ledger demo
-
-### Compliance
-
-- `fabric-local` only — no mainnet
-- Fictional jurisdictions and data only — no real elections, NGO/regulatory APIs, or classified defense systems
-
-## [0.1.0] — 2026-06-19
-
-Initial release: 5 global sandbox labs with manifests, rules, Vue panels, fixtures, and K8s job templates.
+- 5 插件海外沙箱首发
