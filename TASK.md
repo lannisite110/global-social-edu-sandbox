@@ -87,3 +87,25 @@ for m in ../global-social-edu-sandbox/plugins/*/plugin.manifest.yaml; do
 done
 bash ci/compliance/compliance-check.sh ../global-social-edu-sandbox
 ```
+
+---
+
+## 7. v0.2.0 发布
+
+| 项 | 内容 |
+|----|------|
+| 版本 | **0.2.0**（见 `VERSION`） |
+| 主库依赖 | `web3-edu-platform-core` **≥ v0.3.0** |
+| manifest | 5 个插件 `metadata.version: 0.2.0`，`spec.coreVersion: ">=0.3.0 <0.4.0"` |
+| 文档 | `CHANGELOG.md`、教程合规页脚 |
+
+验收：
+
+```bash
+cd ../web3-edu-platform-core
+for m in ../global-social-edu-sandbox/plugins/*/plugin.manifest.yaml; do
+  make validate-plugin MANIFEST="$m"
+done
+bash ci/compliance/compliance-check.sh ../global-social-edu-sandbox
+git tag v0.2.0
+```

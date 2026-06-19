@@ -26,3 +26,7 @@ curl -X POST http://127.0.0.1:8080/api/v1/labs/edu.global.sandbox.election/simul
   -H 'Content-Type: application/json' \
   -d '{"params":{},"allowed_chain_ids":["fabric-local"]}'
 ```
+
+---
+
+> **Compliance footer** · `compliance_tier: global_sandbox` · fictional jurisdictions and data only · `fabric-local` sandbox only · no real elections, religious fund settlement, NGO/live regulatory APIs, stablecoin/remittance/RWA, or classified defense systems · classroom simulation only — not legal or compliance advice

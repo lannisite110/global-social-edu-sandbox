@@ -4,12 +4,14 @@
 
 # Global Social Education Sandbox
 
-海外社会治理**概念仿真**教学插件包（子库4）。
+**v0.2.0** · 海外社会治理**概念仿真**教学插件包（子库4）。
+
+依赖 [web3-edu-platform-core](../web3-edu-platform-core) **≥ v0.3.0**。
 
 - 选举哈希 / 宗教规则 / 民生防欺诈 / 监管规则沙箱 / 后勤存证
 - **非**金融产品、**非**真实选举、**非**涉密国防
-
-见 [TASK.md](TASK.md)。
+- 变更记录：[CHANGELOG.md](CHANGELOG.md)
+- 任务书：[TASK.md](TASK.md)
 
 ## 本地联调
 

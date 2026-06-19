@@ -3,12 +3,12 @@ kind: PluginPackage
 metadata:
   id: edu.global.sandbox.regulatory
   name: Regulatory Rule Sandbox
-  version: 0.1.0
+  version: 0.2.0
   repo: global-social-edu-sandbox
   compliance_tier: global_sandbox
 
 spec:
-  coreVersion: ">=0.1.0 <0.2.0"
+  coreVersion: ">=0.3.0 <0.4.0"
   taskTypes:
     - GLOBAL_REGULATORY_RULE_SANDBOX
   namespaces:
