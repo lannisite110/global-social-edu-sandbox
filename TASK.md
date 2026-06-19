@@ -1,4 +1,4 @@
-# Agent-4 任务书 · global-social-edu-sandbox
+# 任务书 · global-social-edu-sandbox
 
 > **仓库**: `global-social-edu-sandbox`  
 > **compliance_tier**: `global_sandbox`  
