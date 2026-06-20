@@ -1,6 +1,6 @@
 # 海外规则沙箱 · 完整学习路径
 
-> **子库** `global-social-edu-sandbox` v0.4.0 · 主库 ≥ v1.0.0 · **5 插件**  
+> **子库** `global-social-edu-sandbox` v0.4.0 · 主库 ≥ v1.1.0 · **5 插件**  
 > **Namespace**: `ns-domain-global` · **链**: Fabric 沙箱 `fabric-local`  
 > 交叉引用：主库 [LEARNING_PATH.md](../web3-edu-platform-core/docs/LEARNING_PATH.md) **阶段 3D**
 
