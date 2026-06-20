@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLabI18n } from '@/composables/useLabI18n'
 import { useLabSimulate } from '../shared/useLabSimulate'
 import { parseHints } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.religion'
 const TASK_TYPE = 'GLOBAL_RELIGION_RULE_SANDBOX'
 
+const { t } = useLabI18n(PLUGIN_ID)
+
 const ruleType = ref<'zakat' | 'waqf'>('zakat')
 const amount = ref(8000)
+
+const ruleTypeOptions = computed(() => [
+  { value: 'zakat' as const, label: t('rule_zakat') },
+  { value: 'waqf' as const, label: t('rule_waqf') },
+])
 
 const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
   useLabSimulate(PLUGIN_ID)
@@ -29,38 +37,37 @@ function run() {
     <header class="lab-header">
       <img src="/favicon.png" alt="" width="32" height="32" class="lab-logo" />
       <div>
-        <h1>宗教合规规则沙箱</h1>
-        <p class="muted">Zakat / Waqf 静态规则表达式 · 非宗教资金清算</p>
+        <h1>{{ t('title') }}</h1>
+        <p class="muted">{{ t('subtitle') }}</p>
       </div>
     </header>
 
     <div v-if="evaluation" class="eval-card">
-      <p class="ok">✓ 规则 {{ hints.rule }} · 金额 {{ hints.amount }}</p>
-      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+      <p class="ok">{{ t('evalLine', { rule: hints.rule, amount: hints.amount }) }}</p>
+      <p v-if="taskStatus" class="status">{{ t('task') }}: {{ taskStatus }}</p>
     </div>
 
     <div class="lab-grid">
       <div class="panel">
-        <h2>规则参数</h2>
+        <h2>{{ t('ruleParams') }}</h2>
         <label class="field">
-          规则类型
+          {{ t('ruleType') }}
           <select v-model="ruleType">
-            <option value="zakat">Zakat（天课）</option>
-            <option value="waqf">Waqf（瓦克夫）</option>
+            <option v-for="opt in ruleTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
           </select>
         </label>
         <label class="field">
-          演示金额
+          {{ t('demoAmount') }}
           <input v-model.number="amount" type="number" min="0" step="100" />
         </label>
         <button class="primary" :disabled="loading" @click="run">
-          {{ loading ? '求值中…' : '求值规则表达式' }}
+          {{ loading ? t('evaluating') : t('evalRule') }}
         </button>
       </div>
 
       <div class="panel">
-        <h2>求值结果</h2>
-        <p v-if="!evaluation" class="muted">输入金额后求值，查看虚构阈值与义务/资格判定。</p>
+        <h2>{{ t('resultSection') }}</h2>
+        <p v-if="!evaluation" class="muted">{{ t('resultHint') }}</p>
         <ul v-else class="hint-list">
           <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>

@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLabI18n } from '@/composables/useLabI18n'
 import { useLabSimulate } from '../shared/useLabSimulate'
 import { parseHints, hintBool } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.regulatory'
 const TASK_TYPE = 'GLOBAL_REGULATORY_RULE_SANDBOX'
 
+const { t } = useLabI18n(PLUGIN_ID)
+
 const entityName = ref('')
 const micaPattern = ref('')
 const sampleEntities = ['Fictional Trade Corp', 'Edu Sandbox Entity', 'Unknown Corp']
-const micaPatterns = [
-  { value: '', label: '（不检查 MiCA）' },
+const micaPatterns = computed(() => [
+  { value: '', label: t('mica_none') },
   { value: 'whitepaper-missing', label: 'whitepaper-missing' },
   { value: 'asset-referenced', label: 'asset-referenced' },
   { value: 'unlicensed-custodian', label: 'unlicensed-custodian' },
-]
+])
 
 const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
   useLabSimulate(PLUGIN_ID)
@@ -39,22 +42,22 @@ function run() {
     <header class="lab-header">
       <img src="/favicon.png" alt="" width="32" height="32" class="lab-logo" />
       <div>
-        <h1>金融监管规则沙箱</h1>
-        <p class="muted">静态 OFAC/MiCA 样例名单 · 无真实 API · 非合规建议</p>
+        <h1>{{ t('title') }}</h1>
+        <p class="muted">{{ t('subtitle') }}</p>
       </div>
     </header>
 
     <div v-if="evaluation" class="eval-card">
-      <p class="ok">✓ 规则评估 · OFAC {{ hints.ofac_match }} · MiCA {{ hints.mica_match }}</p>
-      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+      <p class="ok">{{ t('evalOfac', { ofac: hints.ofac_match, mica: hints.mica_match }) }}</p>
+      <p v-if="taskStatus" class="status">{{ t('task') }}: {{ taskStatus }}</p>
     </div>
 
     <div class="lab-grid">
       <div class="panel">
-        <h2>规则匹配</h2>
+        <h2>{{ t('ruleMatch') }}</h2>
         <label class="field">
-          实体名称
-          <input v-model="entityName" placeholder="输入虚构实体名称" />
+          {{ t('entityName') }}
+          <input v-model="entityName" :placeholder="t('entityPlaceholder')" />
         </label>
         <div class="chips">
           <button
@@ -66,19 +69,19 @@ function run() {
           >{{ e }}</button>
         </div>
         <label class="field">
-          MiCA 演示规则
+          {{ t('micaRule') }}
           <select v-model="micaPattern">
             <option v-for="p in micaPatterns" :key="p.value" :value="p.value">{{ p.label }}</option>
           </select>
         </label>
         <button class="primary" :disabled="loading" @click="run">
-          {{ loading ? '匹配中…' : '运行静态规则匹配' }}
+          {{ loading ? t('matching') : t('runMatch') }}
         </button>
       </div>
 
       <div class="panel">
-        <h2>匹配结果</h2>
-        <p v-if="!evaluation && !error" class="muted">选择样例实体或输入名称，对照 fixtures 静态名单。</p>
+        <h2>{{ t('matchResult') }}</h2>
+        <p v-if="!evaluation && !error" class="muted">{{ t('matchHint') }}</p>
         <ul v-if="evaluation" class="hint-list">
           <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>

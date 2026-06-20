@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLabI18n } from '@/composables/useLabI18n'
 import { useLabSimulate } from '../shared/useLabSimulate'
 import { parseHints, hintBool } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.logistics'
 const TASK_TYPE = 'GLOBAL_LOGISTICS_AUDIT_DEMO'
+
+const { t } = useLabI18n(PLUGIN_ID)
 
 const entries = ref([
   { account: 'DEMO-SUPPLY-01', amount: 100, memo: 'fictional rations batch A' },
@@ -32,22 +35,22 @@ function run(valid = true) {
     <header class="lab-header">
       <img src="/favicon.png" alt="" width="32" height="32" class="lab-logo" />
       <div>
-        <h1>后勤审计存证演示</h1>
-        <p class="muted">虚构物资流水哈希链 · 数据结构教学 · 非涉密后勤系统</p>
+        <h1>{{ t('title') }}</h1>
+        <p class="muted">{{ t('subtitle') }}</p>
       </div>
     </header>
 
     <div v-if="evaluation" class="eval-card">
-      <p class="ok">✓ 条目 {{ hints.entry_count }} · 链 {{ chainValid ? '有效' : '异常' }}</p>
-      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+      <p class="ok">{{ t('evalLine', { count: hints.entry_count, chain: chainValid ? t('chainValid') : t('chainInvalid') }) }}</p>
+      <p v-if="taskStatus" class="status">{{ t('task') }}: {{ taskStatus }}</p>
     </div>
 
     <div class="lab-grid">
       <div class="panel">
-        <h2>流水账本</h2>
+        <h2>{{ t('ledgerSection') }}</h2>
         <table class="data-table">
           <thead>
-            <tr><th>科目</th><th>数量</th><th>备注</th></tr>
+            <tr><th>{{ t('accountCol') }}</th><th>{{ t('amountCol') }}</th><th>{{ t('memoCol') }}</th></tr>
           </thead>
           <tbody>
             <tr v-for="(e, i) in entries" :key="i">
@@ -59,17 +62,17 @@ function run(valid = true) {
         </table>
         <div class="actions">
           <button class="primary" :disabled="loading" @click="run(true)">
-            {{ loading ? '计算中…' : '验证哈希链' }}
+            {{ loading ? t('computing') : t('verifyChain') }}
           </button>
           <button class="secondary" :disabled="loading" @click="run(false)">
-            追加异常行
+            {{ t('addBadRow') }}
           </button>
         </div>
       </div>
 
       <div class="panel">
-        <h2>链完整性</h2>
-        <p v-if="!evaluation && !error" class="muted">每条流水与前序哈希链接，演示链式存证结构。</p>
+        <h2>{{ t('integritySection') }}</h2>
+        <p v-if="!evaluation && !error" class="muted">{{ t('integrityHint') }}</p>
         <ul v-if="evaluation" class="hint-list">
           <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLabI18n } from '@/composables/useLabI18n'
 import { useLabSimulate } from '../shared/useLabSimulate'
 import { parseHints, hintBool } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.election'
 const TASK_TYPE = 'GLOBAL_ELECTION_HASH_DEMO'
+
+const { t } = useLabI18n(PLUGIN_ID)
 
 const nodes = ref([
   { node_id: 'node-alpha', tally_hash: 'a3f5c8e2b1d94f6078e5a2c3b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7' },
@@ -34,22 +37,22 @@ function run(consensusMode: boolean) {
     <header class="lab-header">
       <img src="/favicon.png" alt="" width="32" height="32" class="lab-logo" />
       <div>
-        <h1>选举计票哈希演示</h1>
-        <p class="muted">虚构城市 Simville · 多节点哈希一致性 · 非真实投票系统</p>
+        <h1>{{ t('title') }}</h1>
+        <p class="muted">{{ t('subtitle') }}</p>
       </div>
     </header>
 
     <div v-if="evaluation" class="eval-card">
-      <p class="ok">✓ 规则评估 · 节点 {{ hints.node_count }} · 共识 {{ consensus ? '达成' : '未达成' }}</p>
-      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+      <p class="ok">{{ t('evalLine', { count: hints.node_count, consensus: consensus ? t('consensusReached') : t('consensusFailed') }) }}</p>
+      <p v-if="taskStatus" class="status">{{ t('task') }}: {{ taskStatus }}</p>
     </div>
 
     <div class="lab-grid">
       <div class="panel">
-        <h2>计票节点</h2>
+        <h2>{{ t('nodesSection') }}</h2>
         <table class="data-table">
           <thead>
-            <tr><th>节点</th><th>计票哈希（截断）</th></tr>
+            <tr><th>{{ t('nodeCol') }}</th><th>{{ t('hashCol') }}</th></tr>
           </thead>
           <tbody>
             <tr v-for="n in nodes" :key="n.node_id">
@@ -60,22 +63,22 @@ function run(consensusMode: boolean) {
         </table>
         <div class="actions">
           <button class="primary" :disabled="loading" @click="run(true)">
-            {{ loading ? '比对中…' : '验证一致' }}
+            {{ loading ? t('comparing') : t('verifyConsensus') }}
           </button>
           <button class="secondary" :disabled="loading" @click="run(false)">
-            演示不一致
+            {{ t('demoMismatch') }}
           </button>
         </div>
       </div>
 
       <div class="panel">
-        <h2>共识状态</h2>
-        <p v-if="!evaluation && !error" class="muted">点击按钮提交仿真实验，查看哈希是否一致。</p>
+        <h2>{{ t('consensusSection') }}</h2>
+        <p v-if="!evaluation && !error" class="muted">{{ t('consensusHint') }}</p>
         <ul v-if="evaluation" class="hint-list">
           <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>
         <p v-if="evaluation" :class="consensus ? 'ok' : 'warn'">
-          {{ consensus ? '✓ 共识达成' : '✗ 哈希不一致（教学演示）' }}
+          {{ consensus ? `✓ ${t('consensusReached')}` : `✗ ${t('consensusFailed')}` }}
         </p>
       </div>
     </div>

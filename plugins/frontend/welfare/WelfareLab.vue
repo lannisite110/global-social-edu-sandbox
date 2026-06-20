@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useLabI18n } from '@/composables/useLabI18n'
 import { useLabSimulate } from '../shared/useLabSimulate'
 import { parseHints, hintBool } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.welfare'
 const TASK_TYPE = 'GLOBAL_WELFARE_ANTIFRAUD_SIM'
+
+const { t } = useLabI18n(PLUGIN_ID)
 
 const claims = ref([
   { claim_id: 'SIM-CLM-001', amount: 200, region: 'NorthDemo' },
@@ -38,22 +41,22 @@ function run() {
     <header class="lab-header">
       <img src="/favicon.png" alt="" width="32" height="32" class="lab-logo" />
       <div>
-        <h1>民生救助防重复</h1>
-        <p class="muted">Merkle 防双花算法 · 虚构受益人 ID · 非真实 NGO 数据</p>
+        <h1>{{ t('title') }}</h1>
+        <p class="muted">{{ t('subtitle') }}</p>
       </div>
     </header>
 
     <div v-if="evaluation" class="eval-card">
-      <p class="ok">✓ Merkle 根 {{ hints.merkle_root }} · 重复 {{ duplicate ? '是' : '否' }}</p>
-      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+      <p class="ok">{{ t('evalLine', { root: hints.merkle_root, dup: duplicate ? t('duplicateYes') : t('duplicateNo') }) }}</p>
+      <p v-if="taskStatus" class="status">{{ t('task') }}: {{ taskStatus }}</p>
     </div>
 
     <div class="lab-grid">
       <div class="panel">
-        <h2>救助申领批次</h2>
+        <h2>{{ t('claimsSection') }}</h2>
         <table class="data-table">
           <thead>
-            <tr><th>申领 ID</th><th>金额</th><th>区域</th></tr>
+            <tr><th>{{ t('claimIdCol') }}</th><th>{{ t('amountCol') }}</th><th>{{ t('regionCol') }}</th></tr>
           </thead>
           <tbody>
             <tr v-for="c in claims" :key="c.claim_id">
@@ -64,23 +67,23 @@ function run() {
           </tbody>
         </table>
         <label class="field">
-          验证申领 ID
+          {{ t('verifyClaimId') }}
           <select v-model="verifyClaimId">
             <option v-for="c in claims" :key="c.claim_id" :value="c.claim_id">{{ c.claim_id }}</option>
           </select>
         </label>
         <label class="checkbox">
           <input v-model="injectDuplicate" type="checkbox" />
-          注入重复 claim_id（演示防欺诈）
+          {{ t('injectDuplicate') }}
         </label>
         <button class="primary" :disabled="loading" @click="run">
-          {{ loading ? '验证中…' : '构建 Merkle 并验证' }}
+          {{ loading ? t('verifying') : t('runVerify') }}
         </button>
       </div>
 
       <div class="panel">
-        <h2>Merkle 验证</h2>
-        <p v-if="!evaluation && !error" class="muted">提交后显示 Merkle 根与重复检测结果。</p>
+        <h2>{{ t('resultSection') }}</h2>
+        <p v-if="!evaluation && !error" class="muted">{{ t('resultHint') }}</p>
         <ul v-if="evaluation" class="hint-list">
           <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>
