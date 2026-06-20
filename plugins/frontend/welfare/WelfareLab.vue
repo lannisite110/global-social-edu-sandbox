@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useSimulate } from '../shared/useSimulate'
+import { computed, ref } from 'vue'
+import { useLabSimulate } from '../shared/useLabSimulate'
+import { parseHints, hintBool } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.welfare'
+const TASK_TYPE = 'GLOBAL_WELFARE_ANTIFRAUD_SIM'
 
 const claims = ref([
   { claim_id: 'SIM-CLM-001', amount: 200, region: 'NorthDemo' },
@@ -12,16 +14,23 @@ const claims = ref([
 const verifyClaimId = ref('SIM-CLM-001')
 const injectDuplicate = ref(false)
 
-const { loading, error, result, runSimulate, evaluation } = useSimulate(PLUGIN_ID)
+const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
+  useLabSimulate(PLUGIN_ID)
 
-async function run() {
+const evaluation = computed(() => parseEvaluation(result.value?.evaluation))
+const hints = computed(() => parseHints(evaluation.value?.audit_hints))
+const duplicate = computed(() => hintBool(hints.value, 'duplicate_detected'))
+
+function run() {
   const batch = injectDuplicate.value
     ? [...claims.value, { claim_id: 'SIM-CLM-001', amount: 200, region: 'NorthDemo' }]
     : claims.value
-  await runSimulate({ claims: batch, verify_claim_id: verifyClaimId.value })
+  runSimulate(
+    '民生救助 Merkle 防重复验证',
+    { claims: batch, verify_claim_id: verifyClaimId.value },
+    { taskType: TASK_TYPE },
+  )
 }
-
-const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 </script>
 
 <template>
@@ -33,6 +42,11 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
         <p class="muted">Merkle 防双花算法 · 虚构受益人 ID · 非真实 NGO 数据</p>
       </div>
     </header>
+
+    <div v-if="evaluation" class="eval-card">
+      <p class="ok">✓ Merkle 根 {{ hints.merkle_root }} · 重复 {{ duplicate ? '是' : '否' }}</p>
+      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+    </div>
 
     <div class="lab-grid">
       <div class="panel">
@@ -66,18 +80,16 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 
       <div class="panel">
         <h2>Merkle 验证</h2>
-        <p v-if="!result" class="muted">提交后显示 Merkle 根与重复检测结果。</p>
-        <ul v-else class="hint-list">
-          <li v-for="h in hints()" :key="h">{{ h }}</li>
+        <p v-if="!evaluation && !error" class="muted">提交后显示 Merkle 根与重复检测结果。</p>
+        <ul v-if="evaluation" class="hint-list">
+          <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>
-        <p v-if="evaluation()" :class="evaluation()?.compliance_passed ? 'ok' : 'warn'">
-          {{ evaluation()?.compliance_passed ? '✓ 批次有效' : '✗ ' + (evaluation()?.rejection_reason || '检测到异常') }}
-        </p>
       </div>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <pre v-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
+    <pre v-if="taskReport" class="result">{{ JSON.stringify(taskReport, null, 2) }}</pre>
+    <pre v-else-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
   </section>
 </template>
 
@@ -94,4 +106,6 @@ select { display: block; width: 100%; margin-top: 6px; background: #151b23; bord
 .hint-list { margin: 0; padding-left: 18px; font-size: 13px; color: #c5d0de; }
 .ok { color: #6ee7b7; font-weight: 600; }
 .warn { color: #fbbf24; font-weight: 600; }
+.eval-card { background: #0d2818; border: 1px solid #166534; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.status { color: #9ec5ff; font-size: 12px; margin-top: 6px; }
 </style>

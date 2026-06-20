@@ -19,7 +19,7 @@ def evaluate(inp: RuleInput) -> RuleOutput:
     hints = [
         f"node_count={len(nodes)}",
         f"unique_hashes={len(unique)}",
-        f"consensus={'yes' if consensus else 'no'}",
+        f"consensus={'true' if consensus else 'false'}",
         "fabric-local sandbox only",
         "fictional jurisdiction — not a real voting system",
     ]

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useSimulate } from '../shared/useSimulate'
+import { computed, ref } from 'vue'
+import { useLabSimulate } from '../shared/useLabSimulate'
+import { parseHints, hintBool } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.election'
+const TASK_TYPE = 'GLOBAL_ELECTION_HASH_DEMO'
 
 const nodes = ref([
   { node_id: 'node-alpha', tally_hash: 'a3f5c8e2b1d94f6078e5a2c3b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7' },
@@ -11,17 +13,20 @@ const nodes = ref([
 ])
 
 const CONSENSUS_HASH = 'a3f5c8e2b1d94f6078e5a2c3b4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7'
-const { loading, error, result, runSimulate, evaluation } = useSimulate(PLUGIN_ID)
+const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
+  useLabSimulate(PLUGIN_ID)
 
-async function run(consensus: boolean) {
+const evaluation = computed(() => parseEvaluation(result.value?.evaluation))
+const hints = computed(() => parseHints(evaluation.value?.audit_hints))
+const consensus = computed(() => hintBool(hints.value, 'consensus'))
+
+function run(consensusMode: boolean) {
   const batch = nodes.value.map((n, i) => ({
     ...n,
-    tally_hash: consensus || i < 2 ? CONSENSUS_HASH : 'ffff0000deadbeef' + CONSENSUS_HASH.slice(16),
+    tally_hash: consensusMode || i < 2 ? CONSENSUS_HASH : 'ffff0000deadbeef' + CONSENSUS_HASH.slice(16),
   }))
-  await runSimulate({ nodes: batch })
+  runSimulate('选举计票哈希一致性演示', { nodes: batch }, { taskType: TASK_TYPE })
 }
-
-const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 </script>
 
 <template>
@@ -33,6 +38,11 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
         <p class="muted">虚构城市 Simville · 多节点哈希一致性 · 非真实投票系统</p>
       </div>
     </header>
+
+    <div v-if="evaluation" class="eval-card">
+      <p class="ok">✓ 规则评估 · 节点 {{ hints.node_count }} · 共识 {{ consensus ? '达成' : '未达成' }}</p>
+      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+    </div>
 
     <div class="lab-grid">
       <div class="panel">
@@ -60,18 +70,19 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 
       <div class="panel">
         <h2>共识状态</h2>
-        <p v-if="!result" class="muted">点击按钮提交仿真实验，查看哈希是否一致。</p>
-        <ul v-else class="hint-list">
-          <li v-for="h in hints()" :key="h">{{ h }}</li>
+        <p v-if="!evaluation && !error" class="muted">点击按钮提交仿真实验，查看哈希是否一致。</p>
+        <ul v-if="evaluation" class="hint-list">
+          <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>
-        <p v-if="evaluation()" :class="evaluation()?.compliance_passed ? 'ok' : 'warn'">
-          {{ evaluation()?.compliance_passed ? '✓ 共识达成' : '✗ ' + (evaluation()?.rejection_reason || '共识失败') }}
+        <p v-if="evaluation" :class="consensus ? 'ok' : 'warn'">
+          {{ consensus ? '✓ 共识达成' : '✗ 哈希不一致（教学演示）' }}
         </p>
       </div>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <pre v-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
+    <pre v-if="taskReport" class="result">{{ JSON.stringify(taskReport, null, 2) }}</pre>
+    <pre v-else-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
   </section>
 </template>
 
@@ -93,4 +104,6 @@ code { color: #6ee7b7; font-size: 11px; }
 .secondary:disabled { opacity: 0.6; cursor: not-allowed; }
 .ok { color: #6ee7b7; font-weight: 600; }
 .warn { color: #fbbf24; font-weight: 600; }
+.eval-card { background: #0d2818; border: 1px solid #166534; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.status { color: #9ec5ff; font-size: 12px; margin-top: 6px; }
 </style>

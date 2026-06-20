@@ -3,7 +3,7 @@ kind: PluginPackage
 metadata:
   id: edu.global.sandbox.regulatory
   name: Regulatory Rule Sandbox
-  version: 0.3.0
+  version: 0.4.0
   repo: global-social-edu-sandbox
   compliance_tier: global_sandbox
 

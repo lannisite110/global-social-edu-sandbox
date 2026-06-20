@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useSimulate } from '../shared/useSimulate'
+import { computed, ref } from 'vue'
+import { useLabSimulate } from '../shared/useLabSimulate'
+import { parseHints, hintBool } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.regulatory'
+const TASK_TYPE = 'GLOBAL_REGULATORY_RULE_SANDBOX'
 
 const entityName = ref('')
 const micaPattern = ref('')
@@ -14,16 +16,22 @@ const micaPatterns = [
   { value: 'unlicensed-custodian', label: 'unlicensed-custodian' },
 ]
 
-const { loading, error, result, runSimulate, evaluation } = useSimulate(PLUGIN_ID)
+const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
+  useLabSimulate(PLUGIN_ID)
 
-async function run() {
-  await runSimulate({
-    entity_name: entityName.value,
-    mica_pattern: micaPattern.value || undefined,
-  }, entityName.value)
+const evaluation = computed(() => parseEvaluation(result.value?.evaluation))
+const hints = computed(() => parseHints(evaluation.value?.audit_hints))
+
+function run() {
+  runSimulate(
+    entityName.value || 'regulatory rule match',
+    {
+      entity_name: entityName.value,
+      mica_pattern: micaPattern.value || undefined,
+    },
+    { taskType: TASK_TYPE },
+  )
 }
-
-const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 </script>
 
 <template>
@@ -35,6 +43,11 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
         <p class="muted">静态 OFAC/MiCA 样例名单 · 无真实 API · 非合规建议</p>
       </div>
     </header>
+
+    <div v-if="evaluation" class="eval-card">
+      <p class="ok">✓ 规则评估 · OFAC {{ hints.ofac_match }} · MiCA {{ hints.mica_match }}</p>
+      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+    </div>
 
     <div class="lab-grid">
       <div class="panel">
@@ -65,18 +78,16 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 
       <div class="panel">
         <h2>匹配结果</h2>
-        <p v-if="!result" class="muted">选择样例实体或输入名称，对照 fixtures 静态名单。</p>
-        <ul v-else class="hint-list">
-          <li v-for="h in hints()" :key="h">{{ h }}</li>
+        <p v-if="!evaluation && !error" class="muted">选择样例实体或输入名称，对照 fixtures 静态名单。</p>
+        <ul v-if="evaluation" class="hint-list">
+          <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>
-        <p v-if="evaluation()" :class="evaluation()?.compliance_passed ? 'ok' : 'warn'">
-          {{ evaluation()?.compliance_passed ? '✓ 未命中拒绝规则' : '⚠ ' + (evaluation()?.rejection_reason || '课堂复核') }}
-        </p>
       </div>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <pre v-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
+    <pre v-if="taskReport" class="result">{{ JSON.stringify(taskReport, null, 2) }}</pre>
+    <pre v-else-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
   </section>
 </template>
 
@@ -100,4 +111,6 @@ input, select {
 .hint-list { margin: 0; padding-left: 18px; font-size: 13px; color: #c5d0de; }
 .ok { color: #6ee7b7; font-weight: 600; }
 .warn { color: #fbbf24; font-weight: 600; }
+.eval-card { background: #0d2818; border: 1px solid #166534; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.status { color: #9ec5ff; font-size: 12px; margin-top: 6px; }
 </style>

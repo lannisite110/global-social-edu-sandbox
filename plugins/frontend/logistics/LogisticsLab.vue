@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useSimulate } from '../shared/useSimulate'
+import { computed, ref } from 'vue'
+import { useLabSimulate } from '../shared/useLabSimulate'
+import { parseHints, hintBool } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.logistics'
+const TASK_TYPE = 'GLOBAL_LOGISTICS_AUDIT_DEMO'
 
 const entries = ref([
   { account: 'DEMO-SUPPLY-01', amount: 100, memo: 'fictional rations batch A' },
@@ -10,16 +12,19 @@ const entries = ref([
   { account: 'DEMO-SUPPLY-03', amount: 75, memo: 'fictional shelter materials' },
 ])
 
-const { loading, error, result, runSimulate, evaluation } = useSimulate(PLUGIN_ID)
+const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
+  useLabSimulate(PLUGIN_ID)
 
-async function run(valid = true) {
+const evaluation = computed(() => parseEvaluation(result.value?.evaluation))
+const hints = computed(() => parseHints(evaluation.value?.audit_hints))
+const chainValid = computed(() => hintBool(hints.value, 'chain_valid'))
+
+function run(valid = true) {
   const batch = valid
     ? entries.value
     : [...entries.value, { account: 'DEMO-TAMPER', amount: 999, memo: 'tampered row demo' }]
-  await runSimulate({ entries: batch })
+  runSimulate('后勤流水哈希链验证', { entries: batch }, { taskType: TASK_TYPE })
 }
-
-const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 </script>
 
 <template>
@@ -31,6 +36,11 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
         <p class="muted">虚构物资流水哈希链 · 数据结构教学 · 非涉密后勤系统</p>
       </div>
     </header>
+
+    <div v-if="evaluation" class="eval-card">
+      <p class="ok">✓ 条目 {{ hints.entry_count }} · 链 {{ chainValid ? '有效' : '异常' }}</p>
+      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+    </div>
 
     <div class="lab-grid">
       <div class="panel">
@@ -59,18 +69,16 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 
       <div class="panel">
         <h2>链完整性</h2>
-        <p v-if="!result" class="muted">每条流水与前序哈希链接，演示链式存证结构。</p>
-        <ul v-else class="hint-list">
-          <li v-for="h in hints()" :key="h">{{ h }}</li>
+        <p v-if="!evaluation && !error" class="muted">每条流水与前序哈希链接，演示链式存证结构。</p>
+        <ul v-if="evaluation" class="hint-list">
+          <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>
-        <p v-if="evaluation()" :class="evaluation()?.compliance_passed ? 'ok' : 'warn'">
-          {{ evaluation()?.compliance_passed ? '✓ 哈希链有效' : '✗ ' + (evaluation()?.rejection_reason || '链校验失败') }}
-        </p>
       </div>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <pre v-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
+    <pre v-if="taskReport" class="result">{{ JSON.stringify(taskReport, null, 2) }}</pre>
+    <pre v-else-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
   </section>
 </template>
 
@@ -92,4 +100,6 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 .hint-list { margin: 0; padding-left: 18px; font-size: 13px; color: #c5d0de; }
 .ok { color: #6ee7b7; font-weight: 600; }
 .warn { color: #fbbf24; font-weight: 600; }
+.eval-card { background: #0d2818; border: 1px solid #166534; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.status { color: #9ec5ff; font-size: 12px; margin-top: 6px; }
 </style>

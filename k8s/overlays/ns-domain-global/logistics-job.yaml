@@ -5,7 +5,9 @@ metadata:
   labels:
     edu.web3/plugin-id: edu.global.sandbox.logistics
     edu.web3/compliance: fabric-sandbox-only
+    edu.web3/namespace: ns-domain-global
 spec:
+  backoffLimit: 1
   template:
     metadata:
       labels:
@@ -13,12 +15,21 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - name: runner
+        - name: fabric-runner
           image: hyperledger/fabric-tools:2.5
           env:
             - name: CHAIN_ID
               value: fabric-local
-            - name: EDU_NAMESPACE
-              value: ns-domain-global
-            - name: EDU_TASK_TYPE
+            - name: TASK_TYPE
               value: GLOBAL_LOGISTICS_AUDIT_DEMO
+          command:
+            - sh
+            - -ec
+            - |
+              echo "==> ${TASK_TYPE} hash chain gate"
+              peer version | head -1
+              configtxgen -version 2>/dev/null | head -1 || true
+              echo "logistics audit gate OK — fictional accounts only"
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 256Mi }

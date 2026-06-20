@@ -39,7 +39,7 @@ def evaluate(inp: RuleInput) -> RuleOutput:
         f"entry_count={len(entries)}",
         f"chain_head={chain[0][:16]}...",
         f"chain_tail={chain[-1][:16]}...",
-        f"chain_valid={'yes' if tail_ok else 'no'}",
+        f"chain_valid={'true' if tail_ok else 'false'}",
         "fictional accounts only — not classified logistics data",
         "fabric-local sandbox",
     ]

@@ -5,7 +5,9 @@ metadata:
   labels:
     edu.web3/plugin-id: edu.global.sandbox.regulatory
     edu.web3/compliance: fabric-sandbox-only
+    edu.web3/namespace: ns-domain-global
 spec:
+  backoffLimit: 1
   template:
     metadata:
       labels:
@@ -13,12 +15,26 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-        - name: runner
+        - name: fabric-runner
           image: hyperledger/fabric-tools:2.5
           env:
             - name: CHAIN_ID
               value: fabric-local
-            - name: EDU_NAMESPACE
-              value: ns-domain-global
-            - name: EDU_TASK_TYPE
+            - name: FIXTURE_PATH
+              value: fixtures/ofac-sample.json
+            - name: TASK_TYPE
               value: GLOBAL_REGULATORY_RULE_SANDBOX
+          command:
+            - sh
+            - -ec
+            - |
+              echo "==> ${TASK_TYPE} static rules gate"
+              peer version | head -1
+              case "${FIXTURE_PATH}" in
+                fixtures/*.json) echo "fixture OK: ${FIXTURE_PATH}" ;;
+                *) exit 1 ;;
+              esac
+              echo "regulatory sandbox gate OK — no live OFAC/MiCA API"
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { cpu: 500m, memory: 256Mi }

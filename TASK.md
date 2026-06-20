@@ -8,6 +8,8 @@
 
 ## 1. 目标
 
+> 分阶段深化见 [docs/GLOBAL_PHASES.md](docs/GLOBAL_PHASES.md)（Phase 0 ✅）
+
 5 个**海外社会治理概念仿真**模块（虚构国家/城市/数据，不连接真实系统）。
 
 | # | 模块 | plugin_id | TaskType |
@@ -81,11 +83,8 @@ def evaluate(inp: RuleInput) -> RuleOutput:
 ## 6. 验收
 
 ```bash
-cd ../web3-edu-platform-core
-for m in ../global-social-edu-sandbox/plugins/*/plugin.manifest.yaml; do
-  make validate-plugin MANIFEST="$m"
-done
-bash ci/compliance/compliance-check.sh ../global-social-edu-sandbox
+cd ~/web3home/global-social-edu-sandbox
+make validate && make smoke
 ```
 
 ---

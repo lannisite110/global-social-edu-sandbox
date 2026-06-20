@@ -46,14 +46,14 @@ def evaluate(inp: RuleInput) -> RuleOutput:
 
     hints = [
         f"claim_count={len(claims)}",
-        f"merkle_root={root[:16]}...",
-        f"duplicate_detected={'yes' if duplicates else 'no'}",
+        f"duplicate_detected={'true' if duplicates else 'false'}",
+        f"merkle_root={root[:16]}",
         "fictional beneficiary IDs only",
         "fabric-local sandbox",
     ]
     if verify_id:
         hints.append(f"verify_claim_id={verify_id}")
-        hints.append(f"proof_valid={'yes' if proof_ok else 'no'}")
+        hints.append(f"proof_valid={'true' if proof_ok else 'false'}")
 
     if duplicates:
         return RuleOutput(

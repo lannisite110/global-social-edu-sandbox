@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useSimulate } from '../shared/useSimulate'
+import { computed, ref } from 'vue'
+import { useLabSimulate } from '../shared/useLabSimulate'
+import { parseHints } from '../shared/parseHints'
 
 const PLUGIN_ID = 'edu.global.sandbox.religion'
+const TASK_TYPE = 'GLOBAL_RELIGION_RULE_SANDBOX'
 
 const ruleType = ref<'zakat' | 'waqf'>('zakat')
 const amount = ref(8000)
 
-const { loading, error, result, runSimulate, evaluation } = useSimulate(PLUGIN_ID)
+const { loading, error, result, taskStatus, taskReport, runSimulate, parseEvaluation } =
+  useLabSimulate(PLUGIN_ID)
 
-async function run() {
-  await runSimulate({ rule_type: ruleType.value, amount: amount.value })
+const evaluation = computed(() => parseEvaluation(result.value?.evaluation))
+const hints = computed(() => parseHints(evaluation.value?.audit_hints))
+
+function run() {
+  runSimulate(
+    'Zakat/Waqf 规则表达式求值',
+    { rule_type: ruleType.value, amount: amount.value },
+    { taskType: TASK_TYPE },
+  )
 }
-
-const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 </script>
 
 <template>
@@ -25,6 +33,11 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
         <p class="muted">Zakat / Waqf 静态规则表达式 · 非宗教资金清算</p>
       </div>
     </header>
+
+    <div v-if="evaluation" class="eval-card">
+      <p class="ok">✓ 规则 {{ hints.rule }} · 金额 {{ hints.amount }}</p>
+      <p v-if="taskStatus" class="status">任务: {{ taskStatus }}</p>
+    </div>
 
     <div class="lab-grid">
       <div class="panel">
@@ -47,15 +60,16 @@ const hints = () => (evaluation()?.audit_hints as string[]) ?? []
 
       <div class="panel">
         <h2>求值结果</h2>
-        <p v-if="!result" class="muted">输入金额后求值，查看虚构阈值与义务/资格判定。</p>
+        <p v-if="!evaluation" class="muted">输入金额后求值，查看虚构阈值与义务/资格判定。</p>
         <ul v-else class="hint-list">
-          <li v-for="h in hints()" :key="h">{{ h }}</li>
+          <li v-for="(v, k) in hints" :key="k">{{ k }}={{ v }}</li>
         </ul>
       </div>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <pre v-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
+    <pre v-if="taskReport" class="result">{{ JSON.stringify(taskReport, null, 2) }}</pre>
+    <pre v-else-if="result" class="result">{{ JSON.stringify(result, null, 2) }}</pre>
   </section>
 </template>
 
@@ -71,4 +85,7 @@ select, input[type="number"] {
   border-radius: 8px; padding: 8px;
 }
 .hint-list { margin: 0; padding-left: 18px; font-size: 13px; color: #c5d0de; }
+.eval-card { background: #0d2818; border: 1px solid #166534; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+.ok { color: #6ee7b7; font-weight: 600; margin: 0; }
+.status { color: #9ec5ff; font-size: 12px; margin-top: 6px; }
 </style>
